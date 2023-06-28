@@ -4,17 +4,17 @@
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 /**
- * Class Wp_Swagger_Ui_Helpers
+ * Class Wp_Azure_Api_Management_Helpers
  *
  * This class contains repetitive functions that
  * are used globally within the plugin.
  *
- * @package		WPSGUI
- * @subpackage	Classes/Wp_Swagger_Ui_Helpers
- * @author		Spanrig Technologies
- * @since		1.0.0
+ * @package		WPAPIM
+ * @subpackage	Classes/Wp_Azure_Api_Management_Helpers
+ * @author		granalacant
+ * @since		0.0.1
  */
-class Wp_Swagger_Ui_Helpers{
+class Wp_Azure_Api_Management_Helpers{
 
 	/**
 	 * ######################
@@ -33,7 +33,7 @@ class Wp_Swagger_Ui_Helpers{
 	 * Down below you will find a demo function called output_text()
 	 * To access this function from any other class, you can call it as followed:
 	 * 
-	 * WPSGUI()->helpers->output_text( 'my text' );
+	 * WPAPIM()->helpers->output_text( 'my text' );
 	 * 
 	 */
 	 
@@ -41,7 +41,7 @@ class Wp_Swagger_Ui_Helpers{
 	 * Output some text
 	 *
 	 * @param	string	$text	The text to output
-	 * @since	1.0.0
+	 * @since	0.0.1
 	 *
 	 * @return	void
 	 */

@@ -32,22 +32,22 @@ if ( ! defined( 'ABSPATH' ) ) exit;
  */
 
 /**
- * Class Wp_Swagger_Ui_Run
+ * Class Wp_Azure_Api_Management_Run
  *
  * Thats where we bring the plugin to life
  *
- * @package		WPSGUI
- * @subpackage	Classes/Wp_Swagger_Ui_Run
- * @author		Spanrig Technologies
- * @since		1.0.0
+ * @package		WPAPIM
+ * @subpackage	Classes/Wp_Azure_Api_Management_Run
+ * @author		granalacant
+ * @since		0.0.1
  */
-class Wp_Swagger_Ui_Run{
+class Wp_Azure_Api_Management_Run{
 
 	/**
-	 * Our Wp_Swagger_Ui_Run constructor 
+	 * Our Wp_Azure_Api_Management_Run constructor 
 	 * to run the plugin logic.
 	 *
-	 * @since 1.0.0
+	 * @since 0.0.1
 	 */
 	function __construct(){
 		$this->add_hooks();
@@ -65,23 +65,22 @@ class Wp_Swagger_Ui_Run{
 	 * Registers all WordPress and plugin related hooks
 	 *
 	 * @access	private
-	 * @since	1.0.0
+	 * @since	0.0.1
 	 * @return	void
 	 */
 	private function add_hooks(){
 	
-		add_action( 'plugin_action_links_' . WPSGUI_PLUGIN_BASE, array( $this, 'add_plugin_action_link' ), 20 );
 		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_frontend_scripts_and_styles' ), 20 );
 
-		add_action( 'init', array( $this, 'register_swagger_ui' ));
-		add_filter('manage_swagger_ui_posts_columns', array( $this, 'wpsgui_embed_column' ));
-		add_action('manage_swagger_ui_posts_custom_column', array( $this, 'wpsgui_embed_column_data' ), 10, 2);
-		add_filter('upload_mimes', array( $this, 'wpsgui_add_json_yaml_mime_types' ));
-		add_action('add_meta_boxes_swagger_ui', array( $this, 'add_swagger_ui_meta_box' ));
-		add_action('add_meta_boxes_swagger_ui', array( $this, 'add_swagger_ui_meta_box_shortcode' ));
-		add_action('save_post_swagger_ui', array( $this, 'save_swagger_ui_meta_box' ));
+		add_action( 'init', array( $this, 'register_azure_api_management' ));
+		add_filter('manage_azure_api_management_posts_columns', array( $this, 'WPAPIM_embed_column' ));
+		add_action('manage_azure_api_management_posts_custom_column', array( $this, 'WPAPIM_embed_column_data' ), 10, 2);
+		add_filter('upload_mimes', array( $this, 'WPAPIM_add_json_yaml_mime_types' ));
+		add_action('add_meta_boxes_azure_api_management', array( $this, 'add_azure_api_management_meta_box' ));
+		add_action('add_meta_boxes_azure_api_management', array( $this, 'add_azure_api_management_meta_box_shortcode' ));
+		add_action('save_post_azure_api_management', array( $this, 'save_azure_api_management_meta_box' ));
 		
-		add_shortcode('wpsgui', array( $this, 'wpsgui_shortcode'));
+		add_shortcode('WPAPIM', array( $this, 'WPAPIM_shortcode'));
 	
 	}
 
@@ -94,50 +93,32 @@ class Wp_Swagger_Ui_Run{
 	 */
 
 	/**
-	* Adds action links to the plugin list table
-	*
-	* @access	public
-	* @since	1.0.0
-	*
-	* @param	array	$links An array of plugin action links.
-	*
-	* @return	array	An array of plugin action links.
-	*/
-	public function add_plugin_action_link( $links ) {
-
-		$links['our_shop'] = sprintf( '<a href="%s" target="_blank title="Donate us" style="font-weight:700;">%s</a>', 'https://rzp.io/l/hncvj', __( 'Donate us', 'wp-swagger-ui' ) );
-
-		return $links;
-	}
-
-
-	/**
 	 * Enqueue the frontend related scripts and styles for this plugin.
 	 *
 	 * @access	public
-	 * @since	1.0.0
+	 * @since	0.0.1
 	 *
 	 * @return	void
 	 */
 	public function enqueue_frontend_scripts_and_styles() {
-		wp_enqueue_style( 'wpsgui-swagger-ui-css', WPSGUI_PLUGIN_URL . 'core/includes/assets/css/swagger-ui.css', array(), WPSGUI_VERSION, 'all' );
-		wp_enqueue_script( 'wpsgui-swagger-ui-js', WPSGUI_PLUGIN_URL . 'core/includes/assets/js/swagger-ui.js', array(), WPSGUI_VERSION, 'all' );
-		wp_enqueue_script( 'wpsgui-swagger-ui-bundle', WPSGUI_PLUGIN_URL . 'core/includes/assets/js/swagger-ui-bundle.js', array(), WPSGUI_VERSION, true );
-		wp_enqueue_script( 'wpsgui-swagger-ui-standalone-preset', WPSGUI_PLUGIN_URL . 'core/includes/assets/js/swagger-ui-standalone-preset.js', array('wpsgui-swagger-ui-bundle'), WPSGUI_VERSION, true );
+		wp_enqueue_style( 'WPAPIM-swagger-ui-css', WPAPIM_PLUGIN_URL . 'core/includes/assets/css/swagger-ui.css', array(), WPAPIM_VERSION, 'all' );
+		wp_enqueue_script( 'WPAPIM-swagger-ui-js', WPAPIM_PLUGIN_URL . 'core/includes/assets/js/swagger-ui.js', array(), WPAPIM_VERSION, 'all' );
+		wp_enqueue_script( 'WPAPIM-swagger-ui-bundle', WPAPIM_PLUGIN_URL . 'core/includes/assets/js/swagger-ui-bundle.js', array(), WPAPIM_VERSION, true );
+		wp_enqueue_script( 'WPAPIM-swagger-ui-standalone-preset', WPAPIM_PLUGIN_URL . 'core/includes/assets/js/swagger-ui-standalone-preset.js', array('WPAPIM-swagger-ui-bundle'), WPAPIM_VERSION, true );
 		wp_enqueue_script( 'custom-js', 'https://get.cdnpkg.com/flat-ui/2.1.3/jquery-ui-1.10.3.custom.min.js', array( 'jquery' ),'',true);
 	}
 
-	public function register_swagger_ui() {
+	public function register_azure_api_management() {
 
 		/**
 		 * Post Type: Swaggers.
 		 */
 	
 		$labels = [
-			"name" => esc_html__( "Swagger UI Integration", "custom-post-type-ui" ),
+			"name" => esc_html__( "Azure API Management", "custom-post-type-ui" ),
 			"singular_name" => esc_html__( "Swagger", "custom-post-type-ui" ),
-			"menu_name" => esc_html__( "Swagger UI Integration", "custom-post-type-ui" ),
-			"all_items" => esc_html__( "All Swaggers", "custom-post-type-ui" ),
+			"menu_name" => esc_html__( "Azure API Management", "custom-post-type-ui" ),
+			"all_items" => esc_html__( "All APIs", "custom-post-type-ui" ),
 			"add_new" => esc_html__( "Add new", "custom-post-type-ui" ),
 			"add_new_item" => esc_html__( "Add new Swagger", "custom-post-type-ui" ),
 			"edit_item" => esc_html__( "Edit Swagger", "custom-post-type-ui" ),
@@ -188,63 +169,63 @@ class Wp_Swagger_Ui_Run{
 			"map_meta_cap" => true,
 			"hierarchical" => false,
 			"can_export" => true,
-			"rewrite" => [ "slug" => "swagger_ui", "with_front" => true ],
+			"rewrite" => [ "slug" => "azure_api_management", "with_front" => true ],
 			"query_var" => true,
-			"menu_icon" => WPSGUI_PLUGIN_URL."/core/includes/assets/images/swagger-ui-icon.svg",
+			"menu_icon" => WPAPIM_PLUGIN_URL."/core/includes/assets/images/azure-api-management-icon.svg",
 			"supports" => [ "title" ],
 			"show_in_graphql" => false,
 		];
 	
-		register_post_type( "swagger_ui", $args );
+		register_post_type( "azure_api_management", $args );
 	}	
 
 
 	// Add custom column to our CPT
-	public function wpsgui_embed_column($columns) {
+	public function WPAPIM_embed_column($columns) {
    		$columns['embed_code'] = 'Embed Code';
     	return $columns;
 	}
 
 	// Display data in the "embed_code" column
-	public function wpsgui_embed_column_data($column, $post_id) {
+	public function WPAPIM_embed_column_data($column, $post_id) {
 		if($column === 'embed_code') {
-			$swagger_ui_json_yaml = get_post_meta($post_id, 'swagger_ui_json_yaml', true);
-			if (!empty($swagger_ui_json_yaml)) {
-				echo "<strong>[wpsgui id=".esc_attr($post_id)."]</strong>";
+			$azure_api_management_json_yaml = get_post_meta($post_id, 'azure_api_management_json_yaml', true);
+			if (!empty($azure_api_management_json_yaml)) {
+				echo "<strong>[WPAPIM id=".esc_attr($post_id)."]</strong>";
 			} else {
 				echo "<strong style='color: red;'>File is missing!</strong>";
 			}
 		}
 	}
 
-	// Add meta box to swagger_ui CPT
-	public function add_swagger_ui_meta_box_shortcode() {
+	// Add meta box to azure_api_management CPT
+	public function add_azure_api_management_meta_box_shortcode() {
 		add_meta_box(
-			'swagger_ui_shortcode',
+			'azure_api_management_shortcode',
 			'Embed code',
-			array( $this, 'render_swagger_ui_embed_code_meta_box'),
-			'swagger_ui',
+			array( $this, 'render_azure_api_management_embed_code_meta_box'),
+			'azure_api_management',
 			'side',
 			'high'
 		);
 	}
 
-	public function render_swagger_ui_embed_code_meta_box($post) {
-		$swagger_ui_json_yaml = get_post_meta($post->ID, 'swagger_ui_json_yaml', true);
-		if (!empty($swagger_ui_json_yaml)) {
-			echo "<strong>[wpsgui id=".esc_attr($post->ID)."]</strong>";
+	public function render_azure_api_management_embed_code_meta_box($post) {
+		$azure_api_management_json_yaml = get_post_meta($post->ID, 'azure_api_management_json_yaml', true);
+		if (!empty($azure_api_management_json_yaml)) {
+			echo "<strong>[WPAPIM id=".esc_attr($post->ID)."]</strong>";
 		} else {
 			echo "<strong style='color: red;'>Embed code can't be generated. Please upload a file to generate Embed code.</strong>";
 		}
 	}
 
-	// Add meta box to swagger_ui CPT
-	public function add_swagger_ui_meta_box() {
+	// Add meta box to azure_api_management CPT
+	public function add_azure_api_management_meta_box() {
 		add_meta_box(
-			'swagger_ui_json_yaml',
+			'azure_api_management_json_yaml',
 			'JSON/YAML',
-			array( $this, 'render_swagger_ui_json_yaml_meta_box'),
-			'swagger_ui',
+			array( $this, 'render_azure_api_management_json_yaml_meta_box'),
+			'azure_api_management',
 			'advanced',
 			'high'
 		);
@@ -252,22 +233,22 @@ class Wp_Swagger_Ui_Run{
 	
 
 	// Render meta box HTML
-	public function render_swagger_ui_json_yaml_meta_box($post) {
-		wp_nonce_field(basename(__FILE__), 'swagger_ui_json_yaml_nonce');
+	public function render_azure_api_management_json_yaml_meta_box($post) {
+		wp_nonce_field(basename(__FILE__), 'azure_api_management_json_yaml_nonce');
 	
 		// Get current value of uploaded file
-		$swagger_ui_json_yaml = get_post_meta($post->ID, 'swagger_ui_json_yaml', true);
+		$azure_api_management_json_yaml = get_post_meta($post->ID, 'azure_api_management_json_yaml', true);
 	
 		// Get uploaded file name
 		$uploaded_file_name = '';
-		if (!empty($swagger_ui_json_yaml)) {
-			$uploaded_file_name = basename(get_attached_file($swagger_ui_json_yaml));
+		if (!empty($azure_api_management_json_yaml)) {
+			$uploaded_file_name = basename(get_attached_file($azure_api_management_json_yaml));
 		}
 	
 		// Output HTML for file upload field
-		echo '<p><label for="swagger_ui_json_yaml_field">Select or upload JSON/YAML file:</label><br>';
-		echo '<input type="hidden" id="swagger_ui_json_yaml_field" name="swagger_ui_json_yaml_field" value="' . esc_attr($swagger_ui_json_yaml) . '">';
-		echo '<button class="button" id="swagger_ui_json_yaml_upload_button">Select File</button>';
+		echo '<p><label for="azure_api_management_json_yaml_field">Select or upload JSON/YAML file:</label><br>';
+		echo '<input type="hidden" id="azure_api_management_json_yaml_field" name="azure_api_management_json_yaml_field" value="' . esc_attr($azure_api_management_json_yaml) . '">';
+		echo '<button class="button" id="azure_api_management_json_yaml_upload_button">Select File</button>';
 		echo '<br><em>(Only .json or .yaml files are allowed)</em></p>';
 
 		if (!empty($uploaded_file_name)) {
@@ -281,7 +262,7 @@ class Wp_Swagger_Ui_Run{
 		jQuery(document).ready(function($) {
 			var file_frame;
 
-			$('#swagger_ui_json_yaml_upload_button').on('click', function(event) {
+			$('#azure_api_management_json_yaml_upload_button').on('click', function(event) {
 				event.preventDefault();
 
 				// If the media frame already exists, reopen it.
@@ -306,7 +287,7 @@ class Wp_Swagger_Ui_Run{
 				file_frame.on('select', function() {
 					var attachment = file_frame.state().get('selection').first().toJSON();
 
-					$('#swagger_ui_json_yaml_field').val(attachment.id);
+					$('#azure_api_management_json_yaml_field').val(attachment.id);
 				});
 
 				// Finally, open the media frame
@@ -318,15 +299,15 @@ class Wp_Swagger_Ui_Run{
 	}
 
 	// Save meta box data when post is saved
-	public function save_swagger_ui_meta_box($post_id) {
+	public function save_azure_api_management_meta_box($post_id) {
 	
 		// Check if our nonce is set.
-		if (!isset($_POST['swagger_ui_json_yaml_nonce'])) {
+		if (!isset($_POST['azure_api_management_json_yaml_nonce'])) {
 			return;
 		}
 	
 		// Verify that the nonce is valid.
-		if (!wp_verify_nonce($_POST['swagger_ui_json_yaml_nonce'], basename(__FILE__))) {
+		if (!wp_verify_nonce($_POST['azure_api_management_json_yaml_nonce'], basename(__FILE__))) {
 			return;
 		}
 	
@@ -342,23 +323,23 @@ class Wp_Swagger_Ui_Run{
 		}
 	
 		// Sanitize user input.
-		$file_id = sanitize_text_field($_POST['swagger_ui_json_yaml_field']);
+		$file_id = sanitize_text_field($_POST['azure_api_management_json_yaml_field']);
 	
 		// Update the meta field in the database.
-		update_post_meta($post_id, 'swagger_ui_json_yaml', $file_id);
+		update_post_meta($post_id, 'azure_api_management_json_yaml', $file_id);
 	}
 
 	/**
 	 * Add support for JSON and YAML files to WordPress media library
 	 */
-	public function wpsgui_add_json_yaml_mime_types($mimes) {
+	public function WPAPIM_add_json_yaml_mime_types($mimes) {
 		$mimes['json'] = 'application/json';
 		$mimes['yaml'] = 'text/yaml';
 		$mimes['yml'] = 'text/yaml';
 		return $mimes;
 	}
 
-	public function wpsgui_shortcode($atts){
+	public function WPAPIM_shortcode($atts){
 
 		// Extract the link argument from the shortcode
 		extract( shortcode_atts( array(
@@ -372,20 +353,20 @@ class Wp_Swagger_Ui_Run{
 		}
 
 		$unique_id = "live_".uniqid();
-		$swagger_ui_json_yaml = '';
+		$azure_api_management_json_yaml = '';
 		$output = '';
 
 		if (!empty($id)) {
 			$unique_id = 'stored_'.$id;
-			$swagger_ui_json_yaml = get_post_meta($id, 'swagger_ui_json_yaml', true);
-			if (!empty($swagger_ui_json_yaml)) {
-				$url = wp_get_attachment_url($swagger_ui_json_yaml);
+			$azure_api_management_json_yaml = get_post_meta($id, 'azure_api_management_json_yaml', true);
+			if (!empty($azure_api_management_json_yaml)) {
+				$url = wp_get_attachment_url($azure_api_management_json_yaml);
 			}
 		}
 
 		if (!empty($url)) {
 			// Generate a unique ID for the Swagger UI container
-			$container_id = 'wp-swagger-ui-container-' . $unique_id;
+			$container_id = 'wp-azure-api-management-container-' . $unique_id;
 			
 			// Output the HTML for the Swagger UI container and script tag
 			$output .= '<div id="' . $container_id . '"></div>';

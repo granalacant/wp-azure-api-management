@@ -16,41 +16,41 @@ if ( ! defined( 'ABSPATH' ) ) exit;
  * These callable functions can be called everywhere within the plugin 
  * as followed using the get_plugin_name() as an example: 
  * 
- * WPSGUI->settings->get_plugin_name();
+ * WPAPIM->settings->get_plugin_name();
  * 
  * HELPER COMMENT END
  */
 
 /**
- * Class Wp_Swagger_Ui_Settings
+ * Class Wp_Azure_Api_Management_Settings
  *
  * This class contains all of the plugin settings.
  * Here you can configure the whole plugin data.
  *
- * @package		WPSGUI
- * @subpackage	Classes/Wp_Swagger_Ui_Settings
- * @author		Spanrig Technologies
- * @since		1.0.0
+ * @package		WPAPIM
+ * @subpackage	Classes/Wp_Azure_Api_Management_Settings
+ * @author		granalacant
+ * @since		0.0.1
  */
-class Wp_Swagger_Ui_Settings{
+class Wp_Azure_Api_Management_Settings{
 
 	/**
 	 * The plugin name
 	 *
 	 * @var		string
-	 * @since   1.0.0
+	 * @since   0.0.1
 	 */
 	private $plugin_name;
 
 	/**
-	 * Our Wp_Swagger_Ui_Settings constructor 
+	 * Our Wp_Azure_Api_Management_Settings constructor 
 	 * to run the plugin logic.
 	 *
-	 * @since 1.0.0
+	 * @since 0.0.1
 	 */
 	function __construct(){
 
-		$this->plugin_name = WPSGUI_NAME;
+		$this->plugin_name = WPAPIM_NAME;
 	}
 
 	/**
@@ -65,10 +65,10 @@ class Wp_Swagger_Ui_Settings{
 	 * Return the plugin name
 	 *
 	 * @access	public
-	 * @since	1.0.0
+	 * @since	0.0.1
 	 * @return	string The plugin name
 	 */
 	public function get_plugin_name(){
-		return apply_filters( 'WPSGUI/settings/get_plugin_name', $this->plugin_name );
+		return apply_filters( 'WPAPIM/settings/get_plugin_name', $this->plugin_name );
 	}
 }
