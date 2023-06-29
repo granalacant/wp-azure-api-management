@@ -78,6 +78,7 @@ class Wp_Azure_Api_Management_Run{
 		add_filter('upload_mimes', array( $this, 'WPAPIM_add_json_yaml_mime_types' ));
 		add_action('add_meta_boxes_azure_api_management', array( $this, 'add_azure_api_management_meta_box' ));
 		add_action('add_meta_boxes_azure_api_management', array( $this, 'add_azure_api_management_meta_box_shortcode' ));
+		add_action('add_meta_boxes_azure_api_management', array( $this, 'add_azure_api_management_meta_box_connection' ));
 		add_action('save_post_azure_api_management', array( $this, 'save_azure_api_management_meta_box' ));
 		
 		add_shortcode('WPAPIM', array( $this, 'WPAPIM_shortcode'));
@@ -116,37 +117,37 @@ class Wp_Azure_Api_Management_Run{
 	
 		$labels = [
 			"name" => esc_html__( "Azure API Management", "custom-post-type-ui" ),
-			"singular_name" => esc_html__( "Swagger", "custom-post-type-ui" ),
+			"singular_name" => esc_html__( "API", "custom-post-type-ui" ),
 			"menu_name" => esc_html__( "Azure API Management", "custom-post-type-ui" ),
 			"all_items" => esc_html__( "All APIs", "custom-post-type-ui" ),
 			"add_new" => esc_html__( "Add new", "custom-post-type-ui" ),
-			"add_new_item" => esc_html__( "Add new Swagger", "custom-post-type-ui" ),
-			"edit_item" => esc_html__( "Edit Swagger", "custom-post-type-ui" ),
-			"new_item" => esc_html__( "New Swagger", "custom-post-type-ui" ),
-			"view_item" => esc_html__( "View Swagger", "custom-post-type-ui" ),
-			"view_items" => esc_html__( "View Swaggers", "custom-post-type-ui" ),
-			"search_items" => esc_html__( "Search Swaggers", "custom-post-type-ui" ),
-			"not_found" => esc_html__( "No Swaggers found", "custom-post-type-ui" ),
-			"not_found_in_trash" => esc_html__( "No Swaggers found in trash", "custom-post-type-ui" ),
-			"parent" => esc_html__( "Parent Swagger:", "custom-post-type-ui" ),
-			"featured_image" => esc_html__( "Featured image for this Swagger", "custom-post-type-ui" ),
-			"set_featured_image" => esc_html__( "Set featured image for this Swagger", "custom-post-type-ui" ),
-			"remove_featured_image" => esc_html__( "Remove featured image for this Swagger", "custom-post-type-ui" ),
-			"use_featured_image" => esc_html__( "Use as featured image for this Swagger", "custom-post-type-ui" ),
-			"archives" => esc_html__( "Swagger archives", "custom-post-type-ui" ),
-			"insert_into_item" => esc_html__( "Insert into Swagger", "custom-post-type-ui" ),
-			"uploaded_to_this_item" => esc_html__( "Upload to this Swagger", "custom-post-type-ui" ),
-			"filter_items_list" => esc_html__( "Filter Swaggers list", "custom-post-type-ui" ),
-			"items_list_navigation" => esc_html__( "Swaggers list navigation", "custom-post-type-ui" ),
-			"items_list" => esc_html__( "Swaggers list", "custom-post-type-ui" ),
-			"attributes" => esc_html__( "Swaggers attributes", "custom-post-type-ui" ),
+			"add_new_item" => esc_html__( "Add new API", "custom-post-type-ui" ),
+			"edit_item" => esc_html__( "Edit API", "custom-post-type-ui" ),
+			"new_item" => esc_html__( "New API", "custom-post-type-ui" ),
+			"view_item" => esc_html__( "View API", "custom-post-type-ui" ),
+			"view_items" => esc_html__( "View APIs", "custom-post-type-ui" ),
+			"search_items" => esc_html__( "Search APIs", "custom-post-type-ui" ),
+			"not_found" => esc_html__( "No APIs found", "custom-post-type-ui" ),
+			"not_found_in_trash" => esc_html__( "No APIs found in trash", "custom-post-type-ui" ),
+			"parent" => esc_html__( "Parent API:", "custom-post-type-ui" ),
+			"featured_image" => esc_html__( "Featured image for this API", "custom-post-type-ui" ),
+			"set_featured_image" => esc_html__( "Set featured image for this API", "custom-post-type-ui" ),
+			"remove_featured_image" => esc_html__( "Remove featured image for this API", "custom-post-type-ui" ),
+			"use_featured_image" => esc_html__( "Use as featured image for this API", "custom-post-type-ui" ),
+			"archives" => esc_html__( "APIs archives", "custom-post-type-ui" ),
+			"insert_into_item" => esc_html__( "Insert into API", "custom-post-type-ui" ),
+			"uploaded_to_this_item" => esc_html__( "Upload to this API", "custom-post-type-ui" ),
+			"filter_items_list" => esc_html__( "Filter APIs list", "custom-post-type-ui" ),
+			"items_list_navigation" => esc_html__( "APIs list navigation", "custom-post-type-ui" ),
+			"items_list" => esc_html__( "APIs list", "custom-post-type-ui" ),
+			"attributes" => esc_html__( "APIs attributes", "custom-post-type-ui" ),
 			"name_admin_bar" => esc_html__( "Swagger", "custom-post-type-ui" ),
-			"item_published" => esc_html__( "Swagger published", "custom-post-type-ui" ),
-			"item_published_privately" => esc_html__( "Swagger published privately.", "custom-post-type-ui" ),
-			"item_reverted_to_draft" => esc_html__( "Swagger reverted to draft.", "custom-post-type-ui" ),
-			"item_scheduled" => esc_html__( "Swagger scheduled", "custom-post-type-ui" ),
-			"item_updated" => esc_html__( "Swagger updated.", "custom-post-type-ui" ),
-			"parent_item_colon" => esc_html__( "Parent Swagger:", "custom-post-type-ui" ),
+			"item_published" => esc_html__( "API published", "custom-post-type-ui" ),
+			"item_published_privately" => esc_html__( "API published privately.", "custom-post-type-ui" ),
+			"item_reverted_to_draft" => esc_html__( "API reverted to draft.", "custom-post-type-ui" ),
+			"item_scheduled" => esc_html__( "API scheduled", "custom-post-type-ui" ),
+			"item_updated" => esc_html__( "API updated.", "custom-post-type-ui" ),
+			"parent_item_colon" => esc_html__( "Parent API:", "custom-post-type-ui" ),
 		];
 	
 		$args = [
@@ -219,6 +220,54 @@ class Wp_Azure_Api_Management_Run{
 		}
 	}
 
+	// Add meta box to azure_api_management connection
+	public function add_azure_api_management_meta_box_connection() {
+		add_meta_box(
+			'azure_api_management_connection',
+			'Azure Connection',
+			array( $this, 'render_azure_api_management_connection_meta_box'),
+			'azure_api_management',
+			'advanced',
+			'high'
+		);
+	}
+
+	// Render meta box HTML
+	public function render_azure_api_management_connection_meta_box($post) {
+		// Input HTML for Azure connection
+		echo '<table class="wp-list-table widefat fixed striped pages">';
+		echo '<thead>';
+		echo '<th>Configuration field</th>';
+		echo '<th>Value</th>';
+		echo '<th>Actions</th>';
+		echo '</thead>';
+		echo '<tbody id="the-list">';
+		echo '<tr>';
+			echo '<td>Access Token</td>';
+			echo '<td>Value</td>';
+			echo '<td><a id="setAccessToken" class="page-title-action">Set new value</a> <a data-id="accesstoken" id="deleteAccessToken" class="page-title-action">Delete</a></td>';
+		echo '</tr>';
+		echo '<tr>';
+			echo '<td>Subscription Id</td>';
+			echo '<td>Value</td>';
+			echo '<td><a id="setSubscriptionId" class="page-title-action">Set new value</a> <a data-id="subscriptionid" id="deleteSubscriptionId" class="page-title-action">Delete</a></td>';
+		echo '</tr>';
+		echo '<tr>';
+			echo '<td>Resource Group</td>';
+			echo '<td>Value</td>';
+			echo '<td><a id="setResourceGroup" class="page-title-action">Set new value</a> <a data-id="resourcegroup" id="deleteResourceGroup" class="page-title-action">Delete</a></td>';
+		echo '</tr>';
+		echo '<tr>';
+			echo '<td>Service Name</td>';
+			echo '<td>Value</td>';
+			echo '<td><a id="setServiceId" class="page-title-action">Set new value</a> <a data-id="serviceid" id="deleteServiceId" class="page-title-action">Delete</a></td>';
+		echo '</tr>';
+		echo '</tbody>';
+		echo '</table>';
+		echo '</br>';
+		echo '<a action-id="" name="" id="testapim" class="btn btn-primary">Test Azure API Management configuration</a> <div id="responseTestAPIM"></div>';
+	}
+
 	// Add meta box to azure_api_management CPT
 	public function add_azure_api_management_meta_box() {
 		add_meta_box(
@@ -230,7 +279,6 @@ class Wp_Azure_Api_Management_Run{
 			'high'
 		);
 	}
-	
 
 	// Render meta box HTML
 	public function render_azure_api_management_json_yaml_meta_box($post) {
@@ -298,6 +346,7 @@ class Wp_Azure_Api_Management_Run{
 		<?php
 	}
 
+	
 	// Save meta box data when post is saved
 	public function save_azure_api_management_meta_box($post_id) {
 	
