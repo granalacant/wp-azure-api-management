@@ -76,7 +76,6 @@ class Wp_Azure_Api_Management_Run{
 		add_filter('manage_azure_api_management_posts_columns', array( $this, 'WPAPIM_embed_column' ));
 		add_action('manage_azure_api_management_posts_custom_column', array( $this, 'WPAPIM_embed_column_data' ), 10, 2);
 		add_filter('upload_mimes', array( $this, 'WPAPIM_add_json_yaml_mime_types' ));
-		add_action('add_meta_boxes_azure_api_management', array( $this, 'add_azure_api_management_meta_box' ));
 		add_action('add_meta_boxes_azure_api_management', array( $this, 'add_azure_api_management_meta_box_shortcode' ));
 		add_action('add_meta_boxes_azure_api_management', array( $this, 'add_azure_api_management_meta_box_connection' ));
 		add_action('save_post_azure_api_management', array( $this, 'save_azure_api_management_meta_box' ));
@@ -235,132 +234,34 @@ class Wp_Azure_Api_Management_Run{
 		);
 	}
 
+	// function to create a yaml file from text and upload it to media library wordpress as attachment for post
+	public function WPAPIM_create_yaml_file($text, $post_id) {
+		$upload_dir = wp_upload_dir();
+		$upload_path = $upload_dir['path'];
+		$upload_url = $upload_dir['url'];
+		$file_name = get_post($post_id)->post_name;
+		$upload_file = $upload_path . '/api-' . $file_name . '.yaml';
+		$upload_file_url = $upload_url . '/' . basename($upload_file);
+		$yaml_file = fopen($upload_file, "w") or die("Unable to open file!");
+		fwrite($yaml_file, $text);
+		fclose($yaml_file);
+		$attachment = array(
+			'guid'           => $upload_file_url, 
+			'post_mime_type' => 'text/yaml',
+			'post_title'     => preg_replace( '/\.[^.]+$/', '', basename( $upload_file ) ),
+			'post_content'   => '',
+			'post_status'    => 'inherit'
+		);
+		$attach_id = wp_insert_attachment( $attachment, $upload_file, $post_id );
+		require_once( ABSPATH . 'wp-admin/includes/image.php' );
+		$attach_data = wp_generate_attachment_metadata( $attach_id, $upload_file );
+		wp_update_attachment_metadata( $attach_id, $attach_data );
+		update_post_meta($post_id, 'azure_api_management_json_yaml', $attach_id);
+		return $attach_id;
+	}
+
 	// Render meta box HTML
 	public function render_azure_api_management_connection_meta_box($post) {
-		echo '
-		<form>
-			<div class="form-group row pt-1">
-				<label for="accessToken" class="col-sm-2 col-form-label">Access Token</label>
-				<div class="col-sm-10">
-				<input type="text" class="form-control" id="accessToken" placeholder="SharedAccessSignature...">
-				</div>
-			</div>
-			<div class="form-group row pt-1">
-				<label for="subscriptionId" class="col-sm-2 col-form-label">Subscription Id</label>
-				<div class="col-sm-10">
-				<input type="text" class="form-control" id="subscriptionId" placeholder="subscriptionId">
-				</div>
-			</div>
-			<div class="form-group row pt-1">
-				<label for="resourceGroup" class="col-sm-2 col-form-label">Resource Group</label>
-				<div class="col-sm-10">
-				<input type="text" class="form-control" id="resourceGroup" placeholder="resourceGroup">
-				</div>
-			</div>
-			<div class="form-group row pt-1">
-				<label for="serviceName" class="col-sm-2 col-form-label">Service Name</label>
-				<div class="col-sm-10">
-				<input type="text" class="form-control" id="serviceName" placeholder="serviceName">
-				</div>
-			</div>
-			<div class="form-group row pt-1">
-				<label for="apiId" class="col-sm-2 col-form-label">Api Id</label>
-				<div class="col-sm-10">
-				<input type="text" class="form-control" id="apiId" placeholder="apiId">
-				</div>
-			</div>
-			<div class="form-group row pt-1">
-				<label for="export" class="col-sm-2 col-form-label">Export endpoint</label>
-				<div class="col-sm-10">
-				<div id="exportApiUrl">https://<span id="serviceNameUrl1" class="text-danger">serviceName</span>.management.azure-api.net/subscriptions/<span id="subscriptionIdUrl" class="text-danger">subscriptionId</span>/resourceGroups/<span id="resourceGroupUrl" class="text-danger">resourceGroup</span>/providers/Microsoft.ApiManagement/service/<span id="serviceNameUrl2" class="text-danger">serviceName</span>/apis/<span id="apiIdUrl" class="text-danger">http-bin</span>?export=true&format=openapi&api-version=2022-09-01-preview
-				</div>
-			</div>
-			<div class="form-group row pt-2">
-				<label for="" class="col-sm-2 col-form-label"></label>
-				<div class="col-sm-10">
-				<a action-id="exportApi" name="exportApi" id="exportApi" class="btn btn-primary">Export Api</a>
-				</div>
-			</div>
-			<div class="form-group row pt-1">
-				<label for="" class="col-sm-2 col-form-label"></label>
-				<div class="col-sm-10">
-				<div id="exportApiOutput" class="text-success"></div>
-				</div>
-			</div>
-		</form>
-<script>
-jQuery(document).ready(function ($) {
-	// Replace export endpoint url with input values
-	$("#subscriptionId").on("input", function() {
-		var str = $(this).val();
-		$("#subscriptionIdUrl").text(str);
-	});
-
-	$("#resourceGroup").on("input", function() {
-		var str = $(this).val();
-		$("#resourceGroupUrl").text(str);
-	});
-
-	$("#serviceName").on("input", function() {
-		var str = $(this).val();
-		$("#serviceNameUrl1").text(str);
-		$("#serviceNameUrl2").text(str);
-	});
-
-	$("#apiId").on("input", function() {
-		var str = $(this).val();
-		$("#apiIdUrl").text(str);
-	});
-
-	$(document).on("click", "#exportApi", function () {
-		var url = $("#exportApiUrl").text();
-		var accessToken = $("#accessToken").val();
-		$.ajax({
-			type: "GET",
-			url: url,
-			headers: {
-				"Authorization": accessToken,
-				"Content-Type": "application/json",
-				"Accept": "application/json"
-			},
-			dataType: "JSON",
-			success: function (response) {
-				$("#exportApiOutput").text(response.properties.value);
-			},
-			error: function (jqXHR, textStatus, errorThrown) {
-			  console.log(jqXHR, textStatus, errorThrown);
-			  alert("Error: " + errorThrown);
-			},
-		});
-	});
-
-
-
-
-
-
-
-
-
-  });
-</script>
-';
-	}
-
-	// Add meta box to azure_api_management CPT
-	public function add_azure_api_management_meta_box() {
-		add_meta_box(
-			'azure_api_management_json_yaml',
-			'JSON/YAML',
-			array( $this, 'render_azure_api_management_json_yaml_meta_box'),
-			'azure_api_management',
-			'advanced',
-			'high'
-		);
-	}
-
-	// Render meta box HTML
-	public function render_azure_api_management_json_yaml_meta_box($post) {
 		wp_nonce_field(basename(__FILE__), 'azure_api_management_json_yaml_nonce');
 	
 		// Get current value of uploaded file
@@ -372,16 +273,14 @@ jQuery(document).ready(function ($) {
 			$uploaded_file_name = basename(get_attached_file($azure_api_management_json_yaml));
 		}
 	
-		// Output HTML for file upload field
-		echo '<p><label for="azure_api_management_json_yaml_field">Select or upload JSON/YAML file:</label><br>';
 		echo '<input type="hidden" id="azure_api_management_json_yaml_field" name="azure_api_management_json_yaml_field" value="' . esc_attr($azure_api_management_json_yaml) . '">';
-		echo '<button class="button" id="azure_api_management_json_yaml_upload_button">Select File</button>';
-		echo '<br><em>(Only .json or .yaml files are allowed)</em></p>';
 
 		if (!empty($uploaded_file_name)) {
-			echo '<strong><em>Current file: ' . esc_html($uploaded_file_name) . '</em></strong>';
+			echo '<span id="azure_api_management_json_yaml_upload_button">Current file: ' . esc_html($uploaded_file_name) . '</span>';
+		} else {
+			echo '<span id="azure_api_management_json_yaml_upload_button">Upload JSON/YAML file</span>';
 		}
-	
+
 		// Enqueue media library scripts
 		wp_enqueue_media();
 		?>
@@ -423,12 +322,109 @@ jQuery(document).ready(function ($) {
 		});
 		</script>
 		<?php
+		echo '
+			<div class="form-group row pt-1">
+				<label for="accessToken" class="col-sm-2 col-form-label">Access Token</label>
+				<div class="col-sm-10">
+				<input type="text" class="form-control" id="accessToken" placeholder="SharedAccessSignature...">
+				</div>
+			</div>
+			<div class="form-group row pt-1">
+				<label for="subscriptionId" class="col-sm-2 col-form-label">Subscription Id</label>
+				<div class="col-sm-10">
+				<input type="text" class="form-control" id="subscriptionId" placeholder="subscriptionId">
+				</div>
+			</div>
+			<div class="form-group row pt-1">
+				<label for="resourceGroup" class="col-sm-2 col-form-label">Resource Group</label>
+				<div class="col-sm-10">
+				<input type="text" class="form-control" id="resourceGroup" placeholder="resourceGroup">
+				</div>
+			</div>
+			<div class="form-group row pt-1">
+				<label for="serviceName" class="col-sm-2 col-form-label">Service Name</label>
+				<div class="col-sm-10">
+				<input type="text" class="form-control" id="serviceName" placeholder="serviceName">
+				</div>
+			</div>
+			<div class="form-group row pt-1">
+				<label for="apiId" class="col-sm-2 col-form-label">Api Id</label>
+				<div class="col-sm-10">
+				<input type="text" class="form-control" id="apiId" placeholder="apiId">
+				</div>
+			</div>
+			<div class="form-group row pt-1">
+				<label for="export" class="col-sm-2 col-form-label">Export endpoint</label>
+				<div class="col-sm-10">
+				<div id="exportApiUrl">https://<span id="serviceNameUrl1" class="text-danger">serviceName</span>.management.azure-api.net/subscriptions/<span id="subscriptionIdUrl" class="text-danger">subscriptionId</span>/resourceGroups/<span id="resourceGroupUrl" class="text-danger">resourceGroup</span>/providers/Microsoft.ApiManagement/service/<span id="serviceNameUrl2" class="text-danger">serviceName</span>/apis/<span id="apiIdUrl" class="text-danger">apiId</span>?export=true&format=openapi&api-version=2022-09-01-preview
+				</div>
+			</div>
+			<div class="form-group row pt-2">
+				<label for="" class="col-sm-2 col-form-label"></label>
+				<div class="col-sm-10">
+				<a action-id="exportApi" name="exportApi" id="exportApi" class="btn btn-primary">Export Api</a>
+				</div>
+			</div>
+			<div class="form-group row pt-1">
+				<label for="" class="col-sm-2 col-form-label"></label>
+				<div class="col-sm-10">
+				<div id="exportApiOutput" class="text-success"></div>
+				<div id="exportApiOutputError" class="text-danger"></div>
+				</div>
+			</div>
+			<input type="hidden" id="azure_api_management_json_yaml_field_from_azure" name="azure_api_management_json_yaml_field_from_azure" value="">
+		<script>
+		jQuery(document).ready(function ($) {
+			// Replace export endpoint url with input values
+			$("#subscriptionId").on("input", function() {
+				var str = $(this).val();
+				$("#subscriptionIdUrl").text(str);
+			});
+
+			$("#resourceGroup").on("input", function() {
+				var str = $(this).val();
+				$("#resourceGroupUrl").text(str);
+			});
+
+			$("#serviceName").on("input", function() {
+				var str = $(this).val();
+				$("#serviceNameUrl1").text(str);
+				$("#serviceNameUrl2").text(str);
+			});
+
+			$("#apiId").on("input", function() {
+				var str = $(this).val();
+				$("#apiIdUrl").text(str);
+			});
+
+			$(document).on("click", "#exportApi", function () {
+				var url = $("#exportApiUrl").text();
+				var accessToken = $("#accessToken").val();
+				$.ajax({
+					type: "GET",
+					url: url,
+					headers: {
+						"Authorization": accessToken,
+						"Content-Type": "application/json",
+						"Accept": "application/json"
+					},
+					dataType: "JSON",
+					success: function (response) {
+						$("#exportApiOutput").text(response.properties.value);
+						$("#azure_api_management_json_yaml_field_from_azure").val(response.properties.value);
+					},
+					error: function (jqXHR, textStatus, errorThrown) {
+						$("#exportApiOutputError").text("We\'re unable to export the API. Please check your access token and API details and try again.");
+					},
+				});
+			});
+		});
+		</script>
+		';
 	}
 
-	
 	// Save meta box data when post is saved
 	public function save_azure_api_management_meta_box($post_id) {
-	
 		// Check if our nonce is set.
 		if (!isset($_POST['azure_api_management_json_yaml_nonce'])) {
 			return;
@@ -450,11 +446,15 @@ jQuery(document).ready(function ($) {
 			return;
 		}
 	
-		// Sanitize user input.
-		$file_id = sanitize_text_field($_POST['azure_api_management_json_yaml_field']);
-	
-		// Update the meta field in the database.
-		update_post_meta($post_id, 'azure_api_management_json_yaml', $file_id);
+		if (isset($_POST['azure_api_management_json_yaml_field_from_azure']) && $_POST['azure_api_management_json_yaml_field_from_azure'] != '') {
+			$file_id = $this->WPAPIM_create_yaml_file($_POST['azure_api_management_json_yaml_field_from_azure'], $post_id);
+			update_post_meta($post_id, 'azure_api_management_json_yaml', $file_id);
+		} else {
+			$file_id = sanitize_text_field($_POST['azure_api_management_json_yaml_field']);
+			update_post_meta($post_id, 'azure_api_management_json_yaml', $file_id);
+		}
+
+
 	}
 
 	/**
