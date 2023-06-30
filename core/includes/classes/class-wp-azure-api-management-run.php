@@ -222,6 +222,9 @@ class Wp_Azure_Api_Management_Run{
 
 	// Add meta box to azure_api_management connection
 	public function add_azure_api_management_meta_box_connection() {
+		wp_enqueue_script( 'WPAPIM-bootstrap-js', WPAPIM_PLUGIN_URL . 'core/includes/assets/js/bootstrap.bundle.min.js', array( 'jquery' ), WPAPIM_VERSION, true);
+		wp_enqueue_style( 'WPAPIM-bootstrap-css', WPAPIM_PLUGIN_URL . 'core/includes/assets/css/bootstrap.min.css', array(), WPAPIM_VERSION, 'all' );
+		
 		add_meta_box(
 			'azure_api_management_connection',
 			'Azure Connection',
@@ -234,38 +237,114 @@ class Wp_Azure_Api_Management_Run{
 
 	// Render meta box HTML
 	public function render_azure_api_management_connection_meta_box($post) {
-		// Input HTML for Azure connection
-		echo '<table class="wp-list-table widefat fixed striped pages">';
-		echo '<thead>';
-		echo '<th>Configuration field</th>';
-		echo '<th>Value</th>';
-		echo '<th>Actions</th>';
-		echo '</thead>';
-		echo '<tbody id="the-list">';
-		echo '<tr>';
-			echo '<td>Access Token</td>';
-			echo '<td>Value</td>';
-			echo '<td><a id="setAccessToken" class="page-title-action">Set new value</a> <a data-id="accesstoken" id="deleteAccessToken" class="page-title-action">Delete</a></td>';
-		echo '</tr>';
-		echo '<tr>';
-			echo '<td>Subscription Id</td>';
-			echo '<td>Value</td>';
-			echo '<td><a id="setSubscriptionId" class="page-title-action">Set new value</a> <a data-id="subscriptionid" id="deleteSubscriptionId" class="page-title-action">Delete</a></td>';
-		echo '</tr>';
-		echo '<tr>';
-			echo '<td>Resource Group</td>';
-			echo '<td>Value</td>';
-			echo '<td><a id="setResourceGroup" class="page-title-action">Set new value</a> <a data-id="resourcegroup" id="deleteResourceGroup" class="page-title-action">Delete</a></td>';
-		echo '</tr>';
-		echo '<tr>';
-			echo '<td>Service Name</td>';
-			echo '<td>Value</td>';
-			echo '<td><a id="setServiceId" class="page-title-action">Set new value</a> <a data-id="serviceid" id="deleteServiceId" class="page-title-action">Delete</a></td>';
-		echo '</tr>';
-		echo '</tbody>';
-		echo '</table>';
-		echo '</br>';
-		echo '<a action-id="" name="" id="testapim" class="btn btn-primary">Test Azure API Management configuration</a> <div id="responseTestAPIM"></div>';
+		echo '
+		<form>
+			<div class="form-group row pt-1">
+				<label for="accessToken" class="col-sm-2 col-form-label">Access Token</label>
+				<div class="col-sm-10">
+				<input type="text" class="form-control" id="accessToken" placeholder="SharedAccessSignature...">
+				</div>
+			</div>
+			<div class="form-group row pt-1">
+				<label for="subscriptionId" class="col-sm-2 col-form-label">Subscription Id</label>
+				<div class="col-sm-10">
+				<input type="text" class="form-control" id="subscriptionId" placeholder="subscriptionId">
+				</div>
+			</div>
+			<div class="form-group row pt-1">
+				<label for="resourceGroup" class="col-sm-2 col-form-label">Resource Group</label>
+				<div class="col-sm-10">
+				<input type="text" class="form-control" id="resourceGroup" placeholder="resourceGroup">
+				</div>
+			</div>
+			<div class="form-group row pt-1">
+				<label for="serviceName" class="col-sm-2 col-form-label">Service Name</label>
+				<div class="col-sm-10">
+				<input type="text" class="form-control" id="serviceName" placeholder="serviceName">
+				</div>
+			</div>
+			<div class="form-group row pt-1">
+				<label for="apiId" class="col-sm-2 col-form-label">Api Id</label>
+				<div class="col-sm-10">
+				<input type="text" class="form-control" id="apiId" placeholder="apiId">
+				</div>
+			</div>
+			<div class="form-group row pt-1">
+				<label for="export" class="col-sm-2 col-form-label">Export endpoint</label>
+				<div class="col-sm-10">
+				<div id="exportApiUrl">https://<span id="serviceNameUrl1" class="text-danger">serviceName</span>.management.azure-api.net/subscriptions/<span id="subscriptionIdUrl" class="text-danger">subscriptionId</span>/resourceGroups/<span id="resourceGroupUrl" class="text-danger">resourceGroup</span>/providers/Microsoft.ApiManagement/service/<span id="serviceNameUrl2" class="text-danger">serviceName</span>/apis/<span id="apiIdUrl" class="text-danger">http-bin</span>?export=true&format=openapi&api-version=2022-09-01-preview
+				</div>
+			</div>
+			<div class="form-group row pt-2">
+				<label for="" class="col-sm-2 col-form-label"></label>
+				<div class="col-sm-10">
+				<a action-id="exportApi" name="exportApi" id="exportApi" class="btn btn-primary">Export Api</a>
+				</div>
+			</div>
+			<div class="form-group row pt-1">
+				<label for="" class="col-sm-2 col-form-label"></label>
+				<div class="col-sm-10">
+				<div id="exportApiOutput" class="text-success"></div>
+				</div>
+			</div>
+		</form>
+<script>
+jQuery(document).ready(function ($) {
+	// Replace export endpoint url with input values
+	$("#subscriptionId").on("input", function() {
+		var str = $(this).val();
+		$("#subscriptionIdUrl").text(str);
+	});
+
+	$("#resourceGroup").on("input", function() {
+		var str = $(this).val();
+		$("#resourceGroupUrl").text(str);
+	});
+
+	$("#serviceName").on("input", function() {
+		var str = $(this).val();
+		$("#serviceNameUrl1").text(str);
+		$("#serviceNameUrl2").text(str);
+	});
+
+	$("#apiId").on("input", function() {
+		var str = $(this).val();
+		$("#apiIdUrl").text(str);
+	});
+
+	$(document).on("click", "#exportApi", function () {
+		var url = $("#exportApiUrl").text();
+		var accessToken = $("#accessToken").val();
+		$.ajax({
+			type: "GET",
+			url: url,
+			headers: {
+				"Authorization": accessToken,
+				"Content-Type": "application/json",
+				"Accept": "application/json"
+			},
+			dataType: "JSON",
+			success: function (response) {
+				$("#exportApiOutput").text(response.properties.value);
+			},
+			error: function (jqXHR, textStatus, errorThrown) {
+			  console.log(jqXHR, textStatus, errorThrown);
+			  alert("Error: " + errorThrown);
+			},
+		});
+	});
+
+
+
+
+
+
+
+
+
+  });
+</script>
+';
 	}
 
 	// Add meta box to azure_api_management CPT
