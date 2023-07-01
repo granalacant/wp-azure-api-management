@@ -66,6 +66,7 @@ define( 'WPAPIM_PLUGIN_URL',	plugin_dir_url( WPAPIM_PLUGIN_FILE ) );
  */
 require_once WPAPIM_PLUGIN_DIR . 'core/class-wp-azure-api-management.php';
 
+
 /**
  * The main function to load the only instance
  * of our master class.
