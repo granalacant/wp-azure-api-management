@@ -1,0 +1,29 @@
+version: '3.7'
+
+services:
+  database:
+    image: mysql:8.1
+    volumes:
+      - ./mysql_data:/var/lib/mysql
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: mypassword
+      MYSQL_DATABASE: wordpress
+      MYSQL_USER: wordpressuser
+      MYSQL_PASSWORD: wordpress
+
+  wordpress:
+    depends_on:
+      - database
+    image: wordpress:6.3.1-apache
+    volumes:
+      - ./wordpress_data:/var/www/html
+      - ./start.sh:/usr/local/bin/start.sh  # Montar el script
+    ports:
+      - "8080:80"
+    restart: always
+    environment:
+      WORDPRESS_DB_HOST: database:3306
+      WORDPRESS_DB_USER: wordpressuser
+      WORDPRESS_DB_PASSWORD: wordpress
+    command: /usr/local/bin/start.sh  # Ejecutar el script al iniciar
