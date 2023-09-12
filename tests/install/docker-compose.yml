@@ -1,10 +1,13 @@
 version: '3.7'
+volumes:
+  mysql_data:
+  wordpress_data:
 
 services:
   database:
     image: mysql:8.1
     volumes:
-      - ./mysql_data:/var/lib/mysql
+      - mysql_data:/var/lib/mysql
     restart: always
     environment:
       MYSQL_ROOT_PASSWORD: mypassword
@@ -17,8 +20,10 @@ services:
       - database
     image: wordpress:6.3.1-apache
     volumes:
-      - ./wordpress_data:/var/www/html
-      - ./start.sh:/usr/local/bin/start.sh  # Montar el script
+      - wordpress_data:/var/www/html
+      - ./start.sh:/usr/local/bin/start.sh
+      - ./backup.sql:/usr/local/bin/backup.sql
+      - ./wp-config.php:/usr/local/bin/wp-config.php
     ports:
       - "8080:80"
     restart: always
@@ -26,4 +31,4 @@ services:
       WORDPRESS_DB_HOST: database:3306
       WORDPRESS_DB_USER: wordpressuser
       WORDPRESS_DB_PASSWORD: wordpress
-    command: /usr/local/bin/start.sh  # Ejecutar el script al iniciar
+    entrypoint: ["sh", "/usr/local/bin/start.sh"]
