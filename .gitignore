@@ -2,5 +2,6 @@
 Thumbs.db
 wp-cli.local.yml
 node_modules/
-*.zip
+*.zipc
 *.tar.gz
+test.har

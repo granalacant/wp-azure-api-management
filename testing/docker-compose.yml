@@ -24,6 +24,7 @@ services:
       - ./start.sh:/usr/local/bin/start.sh
       - ./backup.sql:/usr/local/bin/backup.sql
       - ./wp-config.php:/usr/local/bin/wp-config.php
+      - ./api.json:/usr/local/bin/api.json
     ports:
       - "8080:80"
     restart: always

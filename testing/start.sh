@@ -4,12 +4,12 @@
 apt-get update
 apt-get install -y wget unzip default-mysql-client
 
-echo 'Command packages installed'
+echo 'Cmd packages installed'
 
-# Copiar los archivos de WordPress
+# Copiar los archivos base de WordPress
 cp -r /usr/src/wordpress/. /var/www/html/
 
-# Copiar el archivo wp-config.php personalizado
+# Copiar el archivo wp-config.php
 cp /usr/local/bin/wp-config.php /var/www/html/wp-config.php
 
 echo 'Wp initial config ready'
@@ -23,6 +23,10 @@ while true; do
     sleep 5
   fi
 done
+
+# Copiar el default alpha-open-api.json
+mkdir -p /var/www/html/wp-content/uploads/2023/09/
+cp -r /usr/local/bin/api.json /var/www/html/wp-content/uploads/2023/09/api.json
 
 # Extract data from backup.sql to the database (default site, user:root, pass:root...)
 mysql -h database -u root -pmypassword wordpress < /usr/local/bin/backup.sql
