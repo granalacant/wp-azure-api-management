@@ -15,28 +15,25 @@ jobs:
     steps:
     - name: Checkout code
       uses: actions/checkout@v3
-
+      
+    - name: Docker up
+      working-directory: ./selenium
+      run: docker-compose up -d
+  
     - name: Install Node.js
       uses: actions/setup-node@v2
       with:
         node-version: 16
-    
-    - name: Install Chrome
-      run: |
-        wget https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
-        sudo dpkg -i google-chrome-stable_current_amd64.deb
-        sudo apt-get install -f
 
     - name: Install dependencies
       working-directory: ./selenium
       run: npm install
 
-    - name: Docker up
-      working-directory: ./selenium
-      run: docker-compose up -d
-
-    - name: Wait for Docker to be ready
-      run: sleep 30s  # Espera 30 segundos para dar tiempo a que Docker se inicie completamente
+    - name: Check if docker is up
+      run: |
+        while ! curl -s http://localhost:8080/wd/hub/status | jq -r .value.ready 2>/dev/null | grep -q true; do
+          sleep 5
+        done
 
     - name: Run Selenium Tests
       working-directory: ./selenium
