@@ -29,11 +29,8 @@ jobs:
       working-directory: ./selenium
       run: npm install
 
-    - name: Check if docker is up # localhost:4444 Selenium on GithubActions default port
-      run: |
-        while ! curl -s http://localhost:4444/wd/hub/status | jq -r .value.ready 2>/dev/null | grep -q true; do
-          sleep 5
-        done
+    - name: Wait for Docker to be ready
+      run: sleep 10s
 
     - name: Run Selenium Tests
       working-directory: ./selenium
