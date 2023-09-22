@@ -35,6 +35,9 @@ jobs:
       working-directory: ./selenium
       run: docker-compose up -d
 
+    - name: Wait for Docker to be ready
+      run: sleep 30s  # Espera 30 segundos para dar tiempo a que Docker se inicie completamente
+
     - name: Run Selenium Tests
       working-directory: ./selenium
       run: npm test
