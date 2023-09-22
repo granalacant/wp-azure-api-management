@@ -14,7 +14,8 @@ describe('Enable Plugin & Create Post', function() {
       '--disable-notifications',
       '--disable-infobars',
       '--disable-extensions',
-      '--start-maximized'
+      '--window-size=1920,1080',
+      '--headless'
     );
 
     driver = await new Builder()
