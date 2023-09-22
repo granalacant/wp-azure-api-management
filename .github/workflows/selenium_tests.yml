@@ -1,0 +1,34 @@
+name: Selenium Tests
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Install Node.js
+      uses: actions/setup-node@v2
+      with:
+        node-version: 14
+
+    - name: Install dependencies
+      working-directory: ./selenium
+      run: npm install
+
+    - name: Docker up
+      working-directory: ./selenium
+      run: docker-compose up -d
+
+    - name: Run Selenium Tests
+      working-directory: ./selenium
+      run: npm exec -c "test"

@@ -8,7 +8,7 @@
 - Execute: `npm test`
 - Default test will be running. 
 
-## Default credentials for wp-login:
+## Default credentials used for wp-login:
 
 - user: root
 - password: root
