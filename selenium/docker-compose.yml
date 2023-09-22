@@ -1,0 +1,35 @@
+version: '3.7'
+volumes:
+  mysql_data:
+  wordpress_data:
+
+services:
+  database:
+    image: mysql:8.1
+    volumes:
+      - mysql_data:/var/lib/mysql
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: mypassword
+      MYSQL_DATABASE: wordpress
+      MYSQL_USER: wordpressuser
+      MYSQL_PASSWORD: wordpress
+
+  wordpress:
+    depends_on:
+      - database
+    image: wordpress:6.3.1-apache
+    volumes:
+      - wordpress_data:/var/www/html
+      - ./start.sh:/usr/local/bin/start.sh
+      - ./backup.sql:/usr/local/bin/backup.sql
+      - ./wp-config.php:/usr/local/bin/wp-config.php
+      - ./api.json:/usr/local/bin/api.json
+    ports:
+      - "8080:80"
+    restart: always
+    environment:
+      WORDPRESS_DB_HOST: database:3306
+      WORDPRESS_DB_USER: wordpressuser
+      WORDPRESS_DB_PASSWORD: wordpress
+    entrypoint: ["sh", "/usr/local/bin/start.sh"]

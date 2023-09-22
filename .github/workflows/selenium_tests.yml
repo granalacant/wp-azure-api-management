@@ -1,0 +1,37 @@
+name: Selenium Tests
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+      
+    - name: Docker up
+      working-directory: ./selenium
+      run: docker-compose up -d
+  
+    - name: Install Node.js
+      uses: actions/setup-node@v2
+      with:
+        node-version: 16
+
+    - name: Install dependencies
+      working-directory: ./selenium
+      run: npm install
+
+    - name: Wait for Docker to be ready
+      run: sleep 15s
+
+    - name: Run Selenium Tests
+      working-directory: ./selenium
+      run: npm test
