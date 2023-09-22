@@ -31,4 +31,4 @@ jobs:
 
     - name: Run Selenium Tests
       working-directory: ./selenium
-      run: npm exec -c "test"
+      run: npm test
